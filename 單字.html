@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+		<link rel="shortcut icon" href="favicon.ico">
+		<title>Vocabulary Test</title>
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		
+		<!--JQUERY UI-->
+		<link rel="stylesheet" href="https://apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+		<script src="https://apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+		
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+		
+		<link rel="stylesheet" type="text/css" href="style.css">
+		
+		<script src="voc_arr.js?1"></script>
+		<script>
+		$(function(){
+			var vocResult,volume=1;
+			$( "#volumeCtrl" ).slider({
+				value: 100,
+				orientation: "horizontal",
+				range: "min",
+				animate: true,
+				slide: function( event, ui ) {
+					$('#volumeNum').html(ui.value);
+					volume=ui.value/100;
+					
+					//select[ 0 ].selectedIndex = ui.value - 1;
+				}
+			});
+			setVoc();
+			var autoPlay,autoNext;
+			$('.auto').click(function(){
+				if($('.auto').hasClass("active")){
+					$('.auto').removeClass("active");
+					clearInterval(autoPlay);
+					clearInterval(autoNext);
+					$('.sec').html("");
+					return ;
+				}
+				$('.auto').addClass("active");
+				if($('.showAns').is(':visible')==false){
+					$('.next').click();
+				}
+				var sec=2;
+				autoPlay=setInterval(function(){
+					sec--;
+					$('.sec').html(sec);
+					
+					if(sec==0){
+						$('.showAns').click();
+						$('.audio2').click();
+						setTimeout(function(){
+							var audioPlayerCht=document.getElementById("audioPlayerCht");
+							audioPlayerCht.volume=volume;
+							audioPlayerCht.play();
+						},2000);
+						
+						autoNext=setTimeout(function(){
+							$('.next').click();
+						},7000);
+						
+						sec=9;
+					}
+				},1000);
+			});
+			
+			$('.showAns').click(function(){
+				$('.cht').show();
+				$(this).hide();
+			});
+			$('.next').click(function(){
+				$('.cht').show();
+				$('.showAns').show();
+				var R=Math.floor(Math.random()*256);
+				var G=Math.floor(Math.random()*256);
+				var B=Math.floor(Math.random()*256);
+				$('.vocCard').css({"border-color":"rgb("+R+","+G+","+B+")"});
+				setVoc();
+			});
+			
+			$('.audio1').click(function(){
+				document.getElementById("audioPlayer1").play();
+			});
+			$('.audio2').click(function(){
+				var audioPlayer2=document.getElementById("audioPlayer2");
+				//audioPlayer2.volume=$("#volumeCtrl").slider("option", "value")/100;
+				audioPlayer2.volume=volume;
+				document.getElementById("audioPlayer2").play();
+			});
+			function setVoc(){
+				var rand=Math.floor(Math.random()*vocabulary.length);
+				vocResult=vocabulary[rand].split("|");
+				
+				$('.eng').html(vocResult[0]);
+				$('.cht').hide();
+				$('.cht').html(vocResult[1]+"<br>"+"["+vocResult[2]+"]");
+				
+				//$('#audioPlayer1').attr('src','http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&q='+vocResult[0]+'&tl=en-gb');
+				$('#audioPlayer2').attr('src','https://tw.voicetube.com/player/'+vocResult[0]+'.mp3');
+				var chtVoice=vocResult[1]
+				.replace("(n)","")
+				.replace("(v)","")
+				.replace("(adj)","")
+				.replace("(adv)","");
+				$('#audioPlayerCht').attr('src','http://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=32&client=tw-ob&tl=zh-tw&q='+chtVoice);
+			}
+		});
+		</script>
+	</head>
+	<body>
+		<div class="content">
+			<div class="sec"></div>
+			<div class="auto">Auto</div>
+			<div class="vocCard">
+				<div class="eng"></div>
+				<div class="cht"></div>
+			</div>
+			<div class="audioBtn audio1">1.</div>
+			<div class="audioBtn audio2"></div>
+			<div id="volumeNum">100</div>
+			<div id="volumeCtrl"></div>
+			<div class="showAns">Answer</div>
+			<div class="next">Next >></div>
+			
+			<audio id="audioPlayer1" width="0" height="0"></audio>
+			<audio id="audioPlayer2" width="0" height="0"></audio>
+			<audio id="audioPlayerCht" width="0" height="0"></audio>
+			
+		</div>
+		
+	</body>
+</html>
